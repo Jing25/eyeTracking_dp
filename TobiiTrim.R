@@ -191,9 +191,13 @@ GroupAois <- function(trimmed.data) {
 
 ## This function extracts the sum fixation duration
 
-SumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName) , aois = unique(trimmed.data$aoi.tag[trimmed.data$aoi.tag != "NA"])){
+SumFixDur <- function(trimmed.data , recs = sort(unique(sort(trimmed.data$ParticipantName)))) {
   
   if(missing(trimmed.data)) {stop("You need to enter a data frame")}
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
   
   sum.fix.dur.out<-as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
   names(sum.fix.dur.out)<-"Sum of fixations"
@@ -204,15 +208,18 @@ SumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)
   
   for (i in 1:length(sum.fix.dur.out[,1])){
     sum.fix.dur.out[i,1]<-sum(trimmed.data$GazeEventDuration[
-      (trimmed.data$ParticipantName == paste(recs[i])) &
-        sapply(trimmed.data$aoi.tag, function(check){any(check==aois)})
-      ], na.rm=TRUE)
+      (trimmed.data$ParticipantName == paste(recs[i]))], na.rm=TRUE)
   }
   return(sum.fix.dur.out)
 }
 
 ## This function extracts the number of fixations
 NumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
+
   
   if(missing(trimmed.data)) {stop("You need to enter a data frame")}
   
@@ -228,6 +235,7 @@ NumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)
       (trimmed.data$ParticipantName == paste(recs[i]))
       ], na.rm=TRUE)
   }
+  
   return(num.fix.dur)
 }
 
@@ -237,6 +245,9 @@ NumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)
 SumFixDurAoi <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName) , aois = unique(trimmed.data$aoi.tag[trimmed.data$aoi.tag != "NA"])){
   
   if(missing(trimmed.data)) {stop("You need to enter a data frame")}
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
   
   sum.fix.dur.aoi<-as.data.frame(matrix(nrow=length(recs), ncol=length(aois), NA))
   names(sum.fix.dur.aoi)<-(aois)
@@ -281,17 +292,19 @@ VisFixDurAoi <- function(AoiData){
     }
 
   }
-  #factor(sum.fix.dur.aoi, levels = c(1, 2, 3, 4, 5, 6),
-  #       labels = c("Franz", "Ichen", "James", "Max", "Shenyu", "Yiling"))
+
   return(sum.fix.dur.aoi)
 }
 
 
 ## This function extracts the length of saccadic run in pixles
 
-LenSac <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName) , aois = unique(trimmed.data$aoi.tag[trimmed.data$aoi.tag != "NA"])) {
+LenSac <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)) {
   
   sac.run<-matrix(nrow=length(trimmed.data[,1]),ncol=1,NA)
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
   
   for (i in 1:length(trimmed.data[,1])){
     if((is.na(trimmed.data$comb.x.movement[i]) == FALSE)) {
@@ -315,6 +328,10 @@ LenSac <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName) , 
 ## This function extracts the length of saccadic run in pixles per AOI
 
 LenSacAOI <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName) , aois = unique(trimmed.data$aoi.tag[trimmed.data$aoi.tag != "NA"])) {
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
   
   sac.run<-matrix(nrow=length(trimmed.data[,1]),ncol=1,NA)
   
@@ -349,6 +366,10 @@ AvgSacAmpAOI <- function(trimmed.data , recs = unique(trimmed.data$ParticipantNa
   
   if(missing(trimmed.data)) {stop("You need to enter a data frame")}
   
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
+  
   avg.sac.amp <- as.data.frame(matrix(nrow=length(recs), ncol=length(aois), NA))
   names(avg.sac.amp)<-(aois)
   row.names(avg.sac.amp)<-(recs)
@@ -368,6 +389,10 @@ AvgSacAmpAOI <- function(trimmed.data , recs = unique(trimmed.data$ParticipantNa
 AvgSacAmp <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){
   
   if(missing(trimmed.data)) {stop("You need to enter a data frame")}
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
   
   avg.sac.amp <- as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
   names(avg.sac.amp)<-"Average Saccadic Amplitude"
