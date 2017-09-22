@@ -188,6 +188,34 @@ GroupAois <- function(trimmed.data) {
 }
 
 
+## This function extracts the number of fixations
+NumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
+  
+  
+  if(missing(trimmed.data)) {stop("You need to enter a data frame")}
+  
+  num.fix.dur <- as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
+  names(num.fix.dur) <- "Number of fixations"
+  #row.names(num.fix.dur) <- (recs)
+  
+  
+  for (i in 1:length(num.fix.dur[,1])){
+    num.fix.dur[i,1] <- max(trimmed.data$FixationIndex[
+      (trimmed.data$ParticipantName == paste(recs[i]))
+      ], na.rm=TRUE)
+  }
+  
+  num.fix.dur <- rbind(num.fix.dur, colSums(num.fix.dur))
+  row.names(num.fix.dur) <- c(paste(recs), "SUMMATION")
+  
+  return(num.fix.dur)
+  
+} # end NumFixDur()
+
 
 ## This function extracts the sum fixation duration
 
@@ -201,43 +229,20 @@ SumFixDur <- function(trimmed.data , recs = sort(unique(sort(trimmed.data$Partic
   
   sum.fix.dur.out<-as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
   names(sum.fix.dur.out)<-"Sum of fixations"
-  row.names(sum.fix.dur.out)<-(recs)
-  
-  
-  
+  #row.names(sum.fix.dur.out)<-(recs)
   
   for (i in 1:length(sum.fix.dur.out[,1])){
     sum.fix.dur.out[i,1]<-sum(trimmed.data$GazeEventDuration[
       (trimmed.data$ParticipantName == paste(recs[i]))], na.rm=TRUE)
   }
+  
+  sum.fix.dur.out <- rbind(sum.fix.dur.out, colSums(sum.fix.dur.out))
+  row.names(sum.fix.dur.out) <- c(paste(recs), "SUMMATION")
+  
   return(sum.fix.dur.out)
-}
+  
+} # end SumFixDur()
 
-## This function extracts the number of fixations
-NumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){
-  
-  ## sort factor level
-  old.lvl <- levels(recs)
-  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
-
-  
-  if(missing(trimmed.data)) {stop("You need to enter a data frame")}
-  
-  num.fix.dur <- as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
-  names(num.fix.dur) <- "Number of fixations"
-  row.names(num.fix.dur) <- (recs)
-  
-  
-  
-  
-  for (i in 1:length(num.fix.dur[,1])){
-    num.fix.dur[i,1] <- max(trimmed.data$FixationIndex[
-      (trimmed.data$ParticipantName == paste(recs[i]))
-      ], na.rm=TRUE)
-  }
-  
-  return(num.fix.dur)
-}
 
 
 ## This function extracts the sum fixation duration per AOI
@@ -264,37 +269,6 @@ SumFixDurAoi <- function(trimmed.data , recs = unique(trimmed.data$ParticipantNa
   return(sum.fix.dur.aoi)
 }
 
-## This function extracts visit time for AOIs
-
-VisFixDurAoi <- function(AoiData){
-  
-  sum.fix.dur.aoi <- as.data.frame(matrix(nrow=length(AoiData[,1]), ncol=length(AoiData[1,])+1, NA))
-  names(sum.fix.dur.aoi)<-c(names(AoiData), "Times")
-  sum.fix.dur.aoi[1,1:2] <- AoiData[1,1:2]
-  sum.fix.dur.aoi[1,"Stimulus"] <- paste(AoiData[1, "Stimulus"])
-  sum.fix.dur.aoi[1,"Participant"] <- paste(AoiData[1, "Participant"])
-  sum.fix.dur.aoi[1, 5] <- 1
-  k <- 0
-  
-  for (i in 2:length(sum.fix.dur.aoi[,1])) {
-
-    if(AoiData$AOIName[i] == AoiData$AOIName[i-1]) {
-      k <- k + 1;
-      sum.fix.dur.aoi[i-k,"FixationDuration"] = sum.fix.dur.aoi[i-k,"FixationDuration"] + AoiData$FixationDuration[i]
-      sum.fix.dur.aoi[i-k, 5] = sum.fix.dur.aoi[i-k, 5] + 1
-    }
-    else {
-      k <- 0
-      sum.fix.dur.aoi[i,1:2] <- AoiData[i,1:2]
-      sum.fix.dur.aoi[i,"Stimulus"] <- paste(AoiData[i, "Stimulus"])
-      sum.fix.dur.aoi[i,"Participant"] <- paste(AoiData[i, "Participant"])
-      sum.fix.dur.aoi[i, 5] <- 1
-    }
-
-  }
-
-  return(sum.fix.dur.aoi)
-}
 
 
 ## This function extracts the length of saccadic run in pixles
@@ -314,15 +288,18 @@ LenSac <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)) {
   
   len.sac.run<-as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
   names(len.sac.run)<-"length of saccadic run (px)"
-  row.names(len.sac.run)<-(recs)
+  #row.names(len.sac.run)<-(recs)
   
   for (i in 1:length(recs)){
     len.sac.run[i,]<-mean(sac.run[(trimmed.data$ParticipantName == paste(recs[i]))], na.rm=T)
   }
   
+  len.sac.run <- rbind(len.sac.run, colSums(len.sac.run))
+  row.names(len.sac.run) <- c(paste(recs), "SUMMATION")
+  
   return(len.sac.run)
   
-}#end function
+}#end LenSac()
 
 
 ## This function extracts the length of saccadic run in pixles per AOI
@@ -357,7 +334,7 @@ LenSacAOI <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)
   
   return(len.sac.run)
   
-}#end function
+} # end LenSacAOI()
 
 
 
@@ -382,8 +359,10 @@ AvgSacAmpAOI <- function(trimmed.data , recs = unique(trimmed.data$ParticipantNa
           (trimmed.data$aoi.tag == paste(aois[j]))], na.rm = TRUE)
     }
   }
+  
   return(avg.sac.amp)
-}
+  
+} # end AvgSacAmpAOI()
 
 ## This function extracts the average saccadic amplitude
 AvgSacAmp <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){
@@ -396,7 +375,7 @@ AvgSacAmp <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)
   
   avg.sac.amp <- as.data.frame(matrix(nrow=length(recs), ncol=1, NA))
   names(avg.sac.amp)<-"Average Saccadic Amplitude"
-  row.names(avg.sac.amp)<-(recs)
+  #row.names(avg.sac.amp)<-(recs)
   
   
   for (i in 1:length(avg.sac.amp[,1])) {
@@ -405,5 +384,71 @@ AvgSacAmp <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)
       (trimmed.data$ParticipantName == paste(recs[i]))], na.rm = TRUE)
     
   }
+  
+  avg.sac.amp <- rbind(avg.sac.amp, colSums(avg.sac.amp))
+  row.names(avg.sac.amp) <- c(paste(recs), "SUMMATION")
+  
   return(avg.sac.amp)
+  
+} # end AvgSacAmp()
+
+
+## This function extracts visit time for AOIs
+
+VisFixDurAoi <- function(AoiData){
+  
+  sum.fix.dur.aoi <- as.data.frame(matrix(nrow=length(AoiData[,1]), ncol=length(AoiData[1,])+1, NA))
+  names(sum.fix.dur.aoi)<-c(names(AoiData), "Times")
+  sum.fix.dur.aoi[1,1:2] <- AoiData[1,1:2]
+  sum.fix.dur.aoi[1,"Stimulus"] <- paste(AoiData[1, "Stimulus"])
+  sum.fix.dur.aoi[1,"Participant"] <- paste(AoiData[1, "Participant"])
+  sum.fix.dur.aoi[1, 5] <- 1
+  k <- 0
+  
+  for (i in 2:length(sum.fix.dur.aoi[,1])) {
+    
+    if(AoiData$AOIName[i] == AoiData$AOIName[i-1]) {
+      k <- k + 1;
+      sum.fix.dur.aoi[i-k,"FixationDuration"] = sum.fix.dur.aoi[i-k,"FixationDuration"] + AoiData$FixationDuration[i]
+      sum.fix.dur.aoi[i-k, 5] = sum.fix.dur.aoi[i-k, 5] + 1
+    }
+    else {
+      k <- 0
+      sum.fix.dur.aoi[i,1:2] <- AoiData[i,1:2]
+      sum.fix.dur.aoi[i,"Stimulus"] <- paste(AoiData[i, "Stimulus"])
+      sum.fix.dur.aoi[i,"Participant"] <- paste(AoiData[i, "Participant"])
+      sum.fix.dur.aoi[i, 5] <- 1
+    }
+    
+  }
+  
+  return(sum.fix.dur.aoi)
 }
+
+## This function calculate the precentage of leak fixation duration per person
+
+AoiPercnt <- function(Aoidata, recs = unique(Aoidata$Participant)) {
+  
+  recs <- sort(recs)
+  
+  percnt <- as.data.frame(matrix(nrow=length(recs), ncol=4, NA))
+  names(percnt) <- c("MediaName","leak.%", "leakNodes.%", "otherNodes.%")
+  row.names(percnt)<-(recs)
+  percnt[,"MediaName"] <- rep(Aoidata$Stimulus[1], length(recs))
+  
+  
+  for (i in 1:length(percnt[,1])) {
+    totfixdur <- aggregate(Aoidata$FixationDuration[Aoidata$Participant == paste(recs[i])], 
+                           by=list(Aoidata$AOIName[Aoidata$Participant == paste(recs[i])]), sum)
+    names(totfixdur) <- c("AOI", "fixD")
+    percnt[i, "leak.%"] <- totfixdur[totfixdur$AOI == "leak", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    percnt[i, "leakNodes.%"] <- totfixdur[totfixdur$AOI == "leakNodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    percnt[i, "otherNodes.%"] <- totfixdur[totfixdur$AOI == "otherNodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    
+  }
+  
+  return(percnt)
+}
+
+
+
