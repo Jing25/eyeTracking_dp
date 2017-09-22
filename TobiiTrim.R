@@ -431,15 +431,14 @@ AoiPercnt <- function(Aoidata, recs = unique(Aoidata$Participant)) {
   
   recs <- sort(recs)
   
-  percnt <- as.data.frame(matrix(nrow=length(recs), ncol=4, NA))
-  names(percnt) <- c("MediaName","leak.%", "leakNodes.%", "otherNodes.%")
-  row.names(percnt)<-(recs)
+  percnt <- as.data.frame(matrix(nrow=length(recs), ncol=5, NA))
+  names(percnt) <- c("Participant","MediaName","leak.%", "leakNodes.%", "otherNodes.%")
   percnt[,"MediaName"] <- rep(Aoidata$Stimulus[1], length(recs))
-  
+  percnt[,"Participant"] <- (recs)
   
   for (i in 1:length(percnt[,1])) {
-    totfixdur <- aggregate(Aoidata$FixationDuration[Aoidata$Participant == paste(recs[i])], 
-                           by=list(Aoidata$AOIName[Aoidata$Participant == paste(recs[i])]), sum)
+    totfixdur <- aggregate(Aoidata$FixationDuration[Aoidata$Participant == percnt[i,"Participant"]], 
+                           by=list(Aoidata$AOIName[Aoidata$Participant == percnt[i,"Participant"]]), sum)
     names(totfixdur) <- c("AOI", "fixD")
     percnt[i, "leak.%"] <- totfixdur[totfixdur$AOI == "leak", "fixD"] / sum(totfixdur[, "fixD"]) * 100
     percnt[i, "leakNodes.%"] <- totfixdur[totfixdur$AOI == "leakNodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100

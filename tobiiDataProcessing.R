@@ -1,12 +1,13 @@
 rm(list = ls())
-setwd("/Users/jing/Desktop/Eyetracking/eyetracking_git/eyeTracking_dp")
-#setwd("/Users/jingli/Desktop/Eyetracking/R/eyetracking_git")
+#setwd("/Users/jing/Desktop/Eyetracking/eyetracking_git/eyeTracking_dp")
+setwd("/Users/jingli/Desktop/Eyetracking/R/eyetracking_git")
 
 
 numCol <- 9;
 xCol <- 7;
 yCol <- 8;
 
+library(data.table)
 source("TobiiTrim.R")
 
 
@@ -30,10 +31,6 @@ trimmed.data.list <- lapply(level.list, function(l) {
 ## data without aois list
 trimmed.data.noAoi.list <- lapply(level.list, function(l) 
   TobiiTrim.noAOIs(recs = names(l), fileroot = "./Jing_EyetrackingData/Perceptual_Masking_test_test1_Rec "))
-
-## get data
-data.01 <- trimmed.data.noAoi
-data.02 <- trimmed.data.list$level.0$sex0
 
 
 ### different levels
@@ -75,7 +72,7 @@ SumFixDur.img <- data.frame(matrix(unlist(SumFixDur.img.list), nrow = length(Sum
   names(SumFixDur.img) <- as.vector(sapply(SumFixDur.img.list, function(l) names(l)))
   row.names(SumFixDur.img) <- c(as.character(1:(length(SumFixDur.img[,1])-1)), "SUMMATION")
 ## Avg fixation duration
-AvgfixDur.lvl <- SumFixDur.lvl/NumFixDur.lvlSo 
+AvgfixDur.img <- SumFixDur.img/NumFixDur.img
 ## Avg saccadic amplitude
 AvgSacAmp.img.list <- lapply(trimmed.data.list, function(l) lapply(l, function(x) AvgSacAmp(x)))
 AvgSacAmp.img <- data.frame(matrix(unlist(AvgSacAmp.img.list), nrow = length(AvgSacAmp.img.list$level.0$sex0[,1])), stringsAsFactors = FALSE) 
@@ -117,28 +114,44 @@ AoiVisitTime.list <- lapply(AoiData.list, function(l) lapply(l, function(x) {
 ## group AOIs
 AoiVisitTime.list.group <- lapply(AoiVisitTime.list, function(l) lapply(l, function(x) GroupAois(x)))
 
-b <- AoiVisitTime.list.group$level.0$sex0
+AoiVisitTime.lvl.list.group <- lapply(seq_along(AoiVisitTime.list.group), function(l, n, i) {
+    dat <- rbindlist(l[[i]])
+    dat[["Participant"]] <- n[i]
+    #write.csv(dat[,1:4], file = paste("AoiData_group",n[i], ".csv"), row.names = FALSE, quote = FALSE)
+    return(dat)
+  }, l = AoiVisitTime.list.group, n = names(AoiVisitTime.list.group))
+  names(AoiVisitTime.lvl.list.group) <- names(AoiVisitTime.list.group)
+AoiVisitTime.lvl <- rbindlist(AoiVisitTime.lvl.list.group)
+AoiVisitTime.lvl$Stimulus <- "dp"
+write.csv(AoiVisitTime.lvl[,1:4], file = "AoiData_levels.csv", row.names = FALSE, quote = FALSE)
 
-## Fixation duration per aoi
-AoiTotFixDur <- aggregate(AoiData$FixationDuration, by=list(AoiData$AOIName), sum)
-names(AoiTotFixDur) <- c("AOIName", "FixationDuration")
+
+  # b <- AoiVisitTime.lvl.list.group$level.0
+  # b <- AoiVisitTime.list.group$level.0$sex0
+  # 
+  # ## Fixation duration per aoi
+  # AoiTotFixDur <- aggregate(AoiData$FixationDuration, by=list(AoiData$AOIName), sum)
+  # names(AoiTotFixDur) <- c("AOIName", "FixationDuration")
+  # 
+  # 
+  # write.csv(AoiVisitTime[,1:4], file = "AoiVisitData.csv", row.names = FALSE, quote = FALSE)
+  # 
+  # AoiVisitTime.group <- GroupAois(AoiVisitTime)
+  # write.csv(AoiVisitTime.group[,1:4], file = "AoiVisitData_group.csv", row.names = FALSE, quote = FALSE)
 
 
-write.csv(AoiVisitTime[,1:4], file = "AoiVisitData.csv", row.names = FALSE, quote = FALSE)
+## AOIs percentage
 
-AoiVisitTime.group <- GroupAois(AoiVisitTime)
-write.csv(AoiVisitTime.group[,1:4], file = "AoiVisitData_group.csv", row.names = FALSE, quote = FALSE)
-
-library(data.table)
 AoiPercent.list <- lapply(AoiVisitTime.list.group, function(l) lapply(l, function(x) AoiPercnt(x)))
 AoiPercent.lvl.list <- lapply(AoiPercent.list, function(l) {
    dat <- rbindlist(l)
-   row.names(dat) <- unlist(lapply(l, function(x) row.names(x)))
+   dat <- dat[order(Participant)]
+   #row.names(dat) <- unlist(lapply(l, function(x) row.names(x)))
    return(dat)
   })
-a <- AoiPercent.lvl.list$level.0
-AoiPercent.lvl <- do.call("cbind", AoiPercent.lvl.list)
-row.names(AoiPercent.lvl) <- row.names(AoiPercent.lvl.list$level.0)
+  #a <- AoiPercent.lvl.list$level.0
+AoiPercent.lvl <- rbindlist(AoiPercent.lvl.list)
+AoiPercent.lvl <- AoiPercent.lvl[order(Participant)]
 
 
 
