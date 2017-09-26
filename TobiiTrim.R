@@ -470,7 +470,7 @@ AoiPercnt <- function(Aoidata, recs = unique(Aoidata$Participant)) {
       percnt[i, "leak.%"] <- 0
     
     if(any(totfixdur$AOI == "leaknodes")) 
-      percnt[i, "lleakNodes.%"] <- totfixdur[totfixdur$AOI == "leaknodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+      percnt[i, "leakNodes.%"] <- totfixdur[totfixdur$AOI == "leaknodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
     else
       percnt[i, "leakNodes.%"] <- 0
     
@@ -482,6 +482,40 @@ AoiPercnt <- function(Aoidata, recs = unique(Aoidata$Participant)) {
   }
   
   return(percnt)
+}
+
+AoiFDur <- function(Aoidata, recs = unique(Aoidata$Participant)) {
+  
+  recs <- sort(recs)
+  
+  fixdur <- as.data.frame(matrix(nrow=length(recs), ncol=5, NA))
+  names(fixdur) <- c("Participant","MediaName","leak", "leakNodes", "otherNodes")
+  fixdur[,"MediaName"] <- rep(Aoidata$Stimulus[1], length(recs))
+  fixdur[,"Participant"] <- (recs)
+  
+  for (i in 1:length(fixdur[,1])) {
+    totfixdur <- aggregate(Aoidata$FixationDuration[Aoidata$Participant == fixdur[i,"Participant"]], 
+                           by=list(Aoidata$AOIName[Aoidata$Participant == fixdur[i,"Participant"]]), sum)
+    names(totfixdur) <- c("AOI", "fixD")
+    
+    if(any(totfixdur$AOI == "leak")) 
+      fixdur[i, "leak"] <- totfixdur[totfixdur$AOI == "leak", "fixD"]
+    else
+      fixdur[i, "leak"] <- 0
+    
+    if(any(totfixdur$AOI == "leaknodes")) 
+      fixdur[i, "leakNodes"] <- totfixdur[totfixdur$AOI == "leaknodes", "fixD"]
+    else
+      fixdur[i, "leakNodes"] <- 0
+    
+    if(any(totfixdur$AOI == "othernodes")) 
+      fixdur[i, "otherNodes"] <- totfixdur[totfixdur$AOI == "othernodes", "fixD"]
+    else
+      fixdur[i, "otherNodes"] <- 0
+    
+  }
+  
+  return(fixdur)
 }
 
 

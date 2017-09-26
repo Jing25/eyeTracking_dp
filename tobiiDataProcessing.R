@@ -132,10 +132,27 @@ AoiVisitTime.lvl.list.group <- lapply(seq_along(AoiVisitTime.list.group), functi
     #write.csv(dat[,1:4], file = paste("AoiData_group",n[i], ".csv"), row.names = FALSE, quote = FALSE)
     return(dat)
   }, l = AoiVisitTime.list.group, n = names(AoiVisitTime.list.group))
+
   names(AoiVisitTime.lvl.list.group) <- names(AoiVisitTime.list.group)
   a <- AoiVisitTime.lvl.list.group$level.0
+
+AoiVisitTime.lvl.list <- lapply(seq_along(AoiVisitTime.list.group), function(l, n, i) {
+  dat <- rbindlist(l[[i]])
+  dat[["Difficulty"]] <- n[i]
+  #write.csv(dat[,1:4], file = paste("AoiData_group",n[i], ".csv"), row.names = FALSE, quote = FALSE)
+  return(dat)
+}, l = AoiVisitTime.list.group, n = names(AoiVisitTime.list.group))
+  names(AoiVisitTime.lvl.list) <- names(AoiVisitTime.list.group)
+  a <- AoiVisitTime.lvl.list$level.0
+  
+AoiVisitTime <- rbindlist(AoiVisitTime.lvl.list)
+AoiVisitTime$Stimulus <- AoiVisitTime$Difficulty
+AoiVisitTime <- AoiVisitTime[(AoiVisitTime$AOIName == "colorkey") == F,]
+write.csv(AoiVisitTime[,1:4], file = "AoiData_all.csv", row.names = FALSE, quote = FALSE)
+
 AoiVisitTime.lvl <- rbindlist(AoiVisitTime.lvl.list.group)
 AoiVisitTime.lvl$Stimulus <- "dp"
+AoiVisitTime.lvl <- AoiVisitTime.lvl[(AoiVisitTime.lvl$AOIName == "colorkey") == F,]
 write.csv(AoiVisitTime.lvl[,1:4], file = "AoiData_levels.csv", row.names = FALSE, quote = FALSE)
 
 
@@ -165,6 +182,23 @@ AoiPercent.lvl.list <- lapply(AoiPercent.list, function(l) {
   #a <- AoiPercent.lvl.list$level.0
 AoiPercent.lvl <- rbindlist(AoiPercent.lvl.list)
 AoiPercent.lvl <- AoiPercent.lvl[order(Participant)]
+
+## AOIs fixation duration
+
+AoiFixdur.list <- lapply(AoiVisitTime.list.group, function(l) lapply(l, function(x) AoiFDur(x)))
+AoiFixdur.lvl.list <- lapply(AoiFixdur.list, function(l) {
+  dat <- rbindlist(l)
+  dat <- dat[order(Participant)]
+  #row.names(dat) <- unlist(lapply(l, function(x) row.names(x)))
+  return(dat)
+})
+
+for(i in 1:length(AoiFixdur.lvl.list)) AoiFixdur.lvl.list[[i]]$Difficulty <- 
+  rep(names(AoiFixdur.lvl.list)[i], nrow(AoiFixdur.lvl.list[[i]]))
+
+#a <- AoiPercent.lvl.list$level.0
+AoiFixdur <- rbindlist(AoiFixdur.lvl.list)
+AoiFixdur <- AoiFixdur.list[order(Participant)]
 
 
 a <- lapply(AoiData.list, function(l) a <- rbindlist(l))
