@@ -1,3 +1,25 @@
+DelUselessAois <- function(recs, fileroot, nc) {
+  
+  numAoi <- 0
+  for(i in 1:length(recs)) {
+    print(paste("Analysing Recording", paste(fileroot, recs[i])))
+    
+    dat <- read.table(paste(fileroot, recs[i] , ".tsv", sep=""),sep="\t", header=TRUE)
+    
+    dat <- dat[!(dat$ParticipantName == "Jing" | dat$ParticipantName == "Summer" |dat$ParticipantName == "Sandra"),
+               colSums(is.na(dat)) < nrow(dat)]
+    names(dat) <- sub("(\\.Hit).*", "\\1", names(dat))
+    
+    if(i == 1) numAoi <- c(recs[i], (ncol(dat) - nc))
+    else numAoi <- rbind(numAoi, c(recs[i], (ncol(dat) - nc)))
+    
+    #write.xlsx(dat, file = paste("./Jing_EyetrackingData/new2/Perceptual_Masking_test_test1_", recs[i],".xlsx"))
+    write.table(dat, file = paste("./Jing_EyetrackingData/", recs[i], ".csv", sep = ""), row.names = FALSE, quote = FALSE, sep = "\t")
+  }
+  
+  #write.csv(numAoi, file = "./Jing_EyetrackingData/AoiNums.csv", row.names = FALSE)
+}# end of DelUselessAois()
+
 ## This function turns data into a more manageable format
 TobiiTrim<-function(recs, fileroot, n.aoi){
   
@@ -14,11 +36,11 @@ TobiiTrim<-function(recs, fileroot, n.aoi){
     
     # progress bar
     
-    print(paste("Analysing Recording", recs[i]))
+    print(paste("Analysing Recording", fileroot, recs[i], sep = ""))
     
     # this loads the data
-    dat<-read.table(paste(fileroot, recs[i] , ".tsv", sep=""),sep="\t", header=TRUE)
-    dat=dat[,-length(dat[1,])]
+    dat<-read.table(paste(fileroot, recs[i], ".csv", sep=""),sep="\t", header=TRUE)
+    #dat=dat[,-length(dat[1,])]
     
     
     # this reduces the size of the data because it is too big and that slows things down later on
@@ -122,7 +144,7 @@ TobiiTrim.noAOIs<-function(recs, fileroot){
     print(paste("Analysing Recording", recs[i]))
     
     # this loads the data
-    dat<-read.table(paste(fileroot, recs[i] , ".tsv", sep=""),sep="\t", header=TRUE)
+    dat<-read.table(paste(fileroot, recs[i] , ".csv", sep=""),sep="\t", header=TRUE)
     dat=dat[,1:numCol]
     
     
@@ -179,9 +201,10 @@ TobiiTrim.noAOIs<-function(recs, fileroot){
 GroupAois <- function(trimmed.data) {
   
   dat <- trimmed.data
-  dat$AOIName[grep(".leak", dat$AOIName)] <- "leakNodes"
-  dat$AOIName[grep(".key", dat$AOIName)] <- "colorKey"
-  dat$AOIName[grep("\\.", dat$AOIName)] <- "otherNodes"
+  dat$AOIName[grep(".leak", dat$AOIName)] <- "leaknodes"
+  dat$AOIName[grep(".key", dat$AOIName)] <- "colorkey"
+  dat$AOIName[grep("\\. ", dat$AOIName)] <- "othernodes"
+  dat$AOIName[grep("[[:upper:]]", dat$AOIName)] <- "othernodes"
   dat$AOIName[grep("NA", dat$AOIName)] <- "others"
   
   return(dat)
@@ -440,14 +463,25 @@ AoiPercnt <- function(Aoidata, recs = unique(Aoidata$Participant)) {
     totfixdur <- aggregate(Aoidata$FixationDuration[Aoidata$Participant == percnt[i,"Participant"]], 
                            by=list(Aoidata$AOIName[Aoidata$Participant == percnt[i,"Participant"]]), sum)
     names(totfixdur) <- c("AOI", "fixD")
-    percnt[i, "leak.%"] <- totfixdur[totfixdur$AOI == "leak", "fixD"] / sum(totfixdur[, "fixD"]) * 100
-    percnt[i, "leakNodes.%"] <- totfixdur[totfixdur$AOI == "leakNodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
-    percnt[i, "otherNodes.%"] <- totfixdur[totfixdur$AOI == "otherNodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    
+    if(any(totfixdur$AOI == "leak")) 
+      percnt[i, "leak.%"] <- totfixdur[totfixdur$AOI == "leak", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    else
+      percnt[i, "leak.%"] <- 0
+    
+    if(any(totfixdur$AOI == "leaknodes")) 
+      percnt[i, "lleakNodes.%"] <- totfixdur[totfixdur$AOI == "leaknodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    else
+      percnt[i, "leakNodes.%"] <- 0
+    
+    if(any(totfixdur$AOI == "othernodes")) 
+      percnt[i, "otherNodes.%"] <- totfixdur[totfixdur$AOI == "othernodes", "fixD"] / sum(totfixdur[, "fixD"]) * 100
+    else
+      percnt[i, "otherNodes.%"] <- 0
     
   }
   
   return(percnt)
 }
-
 
 

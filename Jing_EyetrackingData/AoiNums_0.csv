@@ -1,0 +1,14 @@
+"V1","V2"
+"dis0","15"
+"inc0","12"
+"job0","15"
+"mit0","16"
+"sex0","14"
+
+dis0 5  inc0 3	job0 6	mit0 6	sex0 6
+dis4 5  inc4 2	job4 4	mit4 10	sex4 4
+dis5 6	inc5 7	job5 5	mit5 3	sex5 4
+dis6 3	inc6 7	job6 5	mit6 4	sex6 6
+dis7 6	inc7 6	job7 5	mit7 3	sex7 5
+
+

@@ -12,25 +12,37 @@ source("TobiiTrim.R")
 
 
 ## all data aoi numbers and image names
-num.aois.0 <- c(14, 16)
-names(num.aois.0) <- c("sex0", "mit0")
-num.aois.1 <- c(16,14)
-names(num.aois.1) <- c("mit0", "sex0")
+num.aois.0 <- c(15,12,15,16,14)
+names(num.aois.0) <- c("dis0","inc0","job0","mit0","sex0")
+num.aois.4 <- c(15,12,15,16,14)
+names(num.aois.4) <- c("dis4","inc4","job4","mit4","sex4")
+num.aois.5 <- c(15,12,15,16,14)
+names(num.aois.5) <- c("dis5","inc5","job5","mit5","sex5")
+num.aois.6 <- c(15,12,15,16,14)
+names(num.aois.6) <- c("dis6","inc6","job6","mit6","sex6")
+num.aois.7 <- c(15,12,15,16,14)
+names(num.aois.7) <- c("dis7","inc7","job7","mit7","sex7")
 
-level.list <- list(num.aois.0, num.aois.1)
+level.list <- list(num.aois.0, num.aois.4, num.aois.5, num.aois.6, num.aois.7)
+names(level.list) <- c("level.0","level.4","level.5","level.6","level.7")
 
-names(level.list) <- c("level.0", "level.1")
+## write to .csv
+nameV <- c(names(num.aois.0), names(num.aois.4), names(num.aois.5), names(num.aois.6), names(num.aois.7))
+DelUselessAois(recs = nameV, fileroot = "./Jing_EyetrackingData/new/Perceptual_Masking_test_test1_", numCol)
 
+#TobiiTrim(recs = "mit0", fileroot = "./Jing_EyetrackingData/Perceptual_Masking_test_test1_", n.aoi = 16)
 ## list of all data
-trimmed.data.list <- lapply(level.list, function(l) {
-  lapply(l, function(x) { 
-    TobiiTrim(recs = names(l)[which(l == x)], fileroot = "./Jing_EyetrackingData/Perceptual_Masking_test_test1_Rec ", n.aoi = x)
-  })
+
+trimmed.data.list <- lapply(level.list, function(l) { 
+  dat <- lapply(seq_along(l), function(x, n, i) 
+  TobiiTrim(recs = n[i], fileroot = "./Jing_EyetrackingData/", n.aoi = x[i]), x = l, n = names(l))
+  names(dat) <- names(l)
+  return(dat)
 })
 
 ## data without aois list
 trimmed.data.noAoi.list <- lapply(level.list, function(l) 
-  TobiiTrim.noAOIs(recs = names(l), fileroot = "./Jing_EyetrackingData/Perceptual_Masking_test_test1_Rec "))
+  TobiiTrim.noAOIs(recs = names(l), fileroot = "./Jing_EyetrackingData/"))
 
 
 ### different levels
@@ -121,6 +133,7 @@ AoiVisitTime.lvl.list.group <- lapply(seq_along(AoiVisitTime.list.group), functi
     return(dat)
   }, l = AoiVisitTime.list.group, n = names(AoiVisitTime.list.group))
   names(AoiVisitTime.lvl.list.group) <- names(AoiVisitTime.list.group)
+  a <- AoiVisitTime.lvl.list.group$level.0
 AoiVisitTime.lvl <- rbindlist(AoiVisitTime.lvl.list.group)
 AoiVisitTime.lvl$Stimulus <- "dp"
 write.csv(AoiVisitTime.lvl[,1:4], file = "AoiData_levels.csv", row.names = FALSE, quote = FALSE)
@@ -152,6 +165,15 @@ AoiPercent.lvl.list <- lapply(AoiPercent.list, function(l) {
   #a <- AoiPercent.lvl.list$level.0
 AoiPercent.lvl <- rbindlist(AoiPercent.lvl.list)
 AoiPercent.lvl <- AoiPercent.lvl[order(Participant)]
+
+
+a <- lapply(AoiData.list, function(l) a <- rbindlist(l))
+
+b <- sapply(a, function(x)  {
+  a <- paste(unique(x$Participant)) 
+  sort(a) })
+
+
 
 
 
