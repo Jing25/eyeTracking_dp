@@ -210,6 +210,17 @@ GroupAois <- function(trimmed.data) {
   return(dat)
 }
 
+## This function change AOI names
+ChangeAoiNames <- function(trimmed.data) {
+  
+  dat <- trimmed.data
+  dat$AOIName[grep("^leak$", dat$AOIName)] <- "Leaking Nodes"
+  dat$AOIName[grep("^leaknodes$", dat$AOIName)] <- "Leaking Ontology"
+  dat$AOIName[grep("^othernodes$", dat$AOIName)] <- "Other Ontology"
+  
+  return(dat)
+}
+
 
 ## This function extracts the number of fixations
 NumFixDur <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){

@@ -24,7 +24,7 @@ num.aois.7 <- c(15,12,15,16,14)
 names(num.aois.7) <- c("dis7","inc7","job7","mit7","sex7")
 
 level.list <- list(num.aois.0, num.aois.4, num.aois.5, num.aois.6, num.aois.7)
-names(level.list) <- c("level.0","level.4","level.5","level.6","level.7")
+names(level.list) <- c("None","S1","S2","S3","S4")
 
 ## write to .csv
 nameV <- c(names(num.aois.0), names(num.aois.4), names(num.aois.5), names(num.aois.6), names(num.aois.7))
@@ -114,7 +114,7 @@ AoiData.list <- lapply(trimmed.data.list, function(l) lapply(l, function(x) {
   return(dat)
   }))
 
-a <- AoiData.list$level.0$sex0
+a <- AoiData.list$None$dis0
 
 AoiVisitTime.list <- lapply(AoiData.list, function(l) lapply(l, function(x) {
      dat <- VisFixDurAoi(x)
@@ -128,7 +128,7 @@ AoiVisitTime.list.group <- lapply(AoiVisitTime.list, function(l) lapply(l, funct
 
 AoiVisitTime.lvl.list.group <- lapply(seq_along(AoiVisitTime.list.group), function(l, n, i) {
     dat <- rbindlist(l[[i]])
-    dat[["Participant"]] <- n[i]
+    dat[["Stimulus"]] <- n[i]
     #write.csv(dat[,1:4], file = paste("AoiData_group",n[i], ".csv"), row.names = FALSE, quote = FALSE)
     return(dat)
   }, l = AoiVisitTime.list.group, n = names(AoiVisitTime.list.group))
@@ -143,7 +143,8 @@ AoiVisitTime.lvl.list <- lapply(seq_along(AoiVisitTime.list.group), function(l, 
   return(dat)
 }, l = AoiVisitTime.list.group, n = names(AoiVisitTime.list.group))
   names(AoiVisitTime.lvl.list) <- names(AoiVisitTime.list.group)
-  a <- AoiVisitTime.lvl.list$level.0
+  a <- AoiVisitTime.lvl.list$None
+
   
 AoiVisitTime <- rbindlist(AoiVisitTime.lvl.list)
 AoiVisitTime$Stimulus <- AoiVisitTime$Difficulty
@@ -151,9 +152,10 @@ AoiVisitTime <- AoiVisitTime[(AoiVisitTime$AOIName == "colorkey") == F,]
 write.csv(AoiVisitTime[,1:4], file = "AoiData_all.csv", row.names = FALSE, quote = FALSE)
 
 AoiVisitTime.lvl <- rbindlist(AoiVisitTime.lvl.list.group)
-AoiVisitTime.lvl$Stimulus <- "dp"
+AoiVisitTime.lvl$Participant <- "All participants"
 AoiVisitTime.lvl <- AoiVisitTime.lvl[(AoiVisitTime.lvl$AOIName == "colorkey") == F,]
-write.csv(AoiVisitTime.lvl[,1:4], file = "AoiData_levels.csv", row.names = FALSE, quote = FALSE)
+AoiVisitTime.lvl.named <- ChangeAoiNames(AoiVisitTime.lvl)
+write.csv(AoiVisitTime.lvl.named[,1:4], file = "AoiData_levels.csv", row.names = FALSE, quote = FALSE)
 
 
   # b <- AoiVisitTime.lvl.list.group$level.0
@@ -198,7 +200,7 @@ for(i in 1:length(AoiFixdur.lvl.list)) AoiFixdur.lvl.list[[i]]$Difficulty <-
 
 #a <- AoiPercent.lvl.list$level.0
 AoiFixdur <- rbindlist(AoiFixdur.lvl.list)
-AoiFixdur <- AoiFixdur.list[order(Participant)]
+AoiFixdur <- AoiFixdur[order(Participant)]
 
 
 a <- lapply(AoiData.list, function(l) a <- rbindlist(l))
