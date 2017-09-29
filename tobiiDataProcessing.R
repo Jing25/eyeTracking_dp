@@ -1,6 +1,6 @@
 rm(list = ls())
-setwd("/Users/jing/Desktop/Eyetracking/eyetracking_git/eyeTracking_dp")
-#setwd("/Users/jingli/Desktop/Eyetracking/R/eyetracking_git")
+#setwd("/Users/jing/Desktop/Eyetracking/eyetracking_git/eyeTracking_dp")
+setwd("/Users/jingli/Desktop/Eyetracking/R/eyetracking_git")
 
 
 numCol <- 9;
@@ -69,7 +69,21 @@ AvglenSac.list <- lapply(trimmed.data.noAoi.list, function(l) LenSac(l))
 AvglenSac.lvl <- data.frame(matrix(unlist(AvglenSac.list), ncol = length(AvglenSac.list)), stringsAsFactors = FALSE) 
   names(AvglenSac.lvl) <- names(AvglenSac.list)
   row.names(AvglenSac.lvl) <- row.names(AvglenSac.list$None)
-  
+
+##Avg saccadic length with mediaName
+AvglenSacMedia.list <- lapply(trimmed.data.noAoi.list, function(l) LenSacMedia(l))
+AvglenSacMedia <- rbindlist(AvglenSacMedia.list)
+AvglenSacMedia$MediaName <- substr(AvglenSacMedia$MediaName, start = 1, stop = 3)
+##Avg fixation duration with mediaName
+SumfixDurMedia.list <- lapply(trimmed.data.noAoi.list, function(l) SumFixDurMedia(l))
+SumfixDurMedia <- rbindlist(SumfixDurMedia.list)
+NumfixDurMedia.list <- lapply(trimmed.data.noAoi.list, function(l) NumFixDurMedia(l))
+NumfixDurMedia <- rbindlist(NumfixDurMedia.list)
+AvgfixDurMedia <- as.data.frame(matrix(nrow=nrow(NumfixDurMedia), ncol=2, NA))
+AvgfixDurMedia[,1] <- as.numeric(SumfixDurMedia$`Sum of fixations`)/as.numeric(NumfixDurMedia$`Number of fixations`)
+AvgfixDurMedia[,2] <- SumfixDurMedia$MediaName
+names(AvgfixDurMedia) <- c("avgfd", "media")
+AvgfixDurMedia$media <- substr(AvgfixDurMedia$media, start = 1, stop = 3)
 
 ## different images
 ## number of fixation 

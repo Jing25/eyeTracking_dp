@@ -1,8 +1,8 @@
 First_Name, Last_Name, Age, Gender, Major, Eye Correction, Dataset1, Dataset2, Dataset3, Dataset4, Dataset5
 Annie,Preston,27,F,CS,,inc7,mit6,dis0,job4,sex5
 Arbit,Chen,29,M,CS,glasses,job7,inc6,dis5,mit0,sex4
-Ching_Lan,Chen,29,M,CS,glasses,job5,mit0,inc4,sex6,dis7
-Chris,Ye,30,M,CS,No,sex5,job7,mit6,dis0,inc4
+Ching-Lan,Chen,29,M,CS,glasses,job5,mit0,inc4,sex6,dis7
+Chris_Ye,Ye,30,M,CS,No,sex5,job7,mit6,dis0,inc4
 Franz,Sauer,26,M,CS,,sex0,dis6,job7,inc5,mit4
 Hide,Shidara,21,M,CS,glasses,job7,mit0,sex4,inc6,dis5
 Hyeyoung,Lim,27,M,Design,none,sex5,job7,mit6,dis0,inc4

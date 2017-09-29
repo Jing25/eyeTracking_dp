@@ -529,4 +529,92 @@ AoiFDur <- function(Aoidata, recs = unique(Aoidata$Participant)) {
   return(fixdur)
 }
 
+## This function extracts the length of saccadic run in pixles
+
+LenSacMedia <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)) {
+  
+  sac.run<-matrix(nrow=length(trimmed.data[,1]),ncol=2,NA)
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
+  
+  for (i in 1:length(trimmed.data[,1])){
+    if((is.na(trimmed.data$comb.x.movement[i]) == FALSE)) {
+      sac.run[i,1] <- ((trimmed.data$comb.x.movement[i])^2 + (trimmed.data$comb.y.movement[i])^2)^0.5
+      sac.run[i,2] <- paste(trimmed.data$MediaName[i]) 
+    } 
+  }
+  
+  len.sac.run<-as.data.frame(matrix(nrow=length(recs), ncol=2, NA))
+  names(len.sac.run)<-c("length of saccadic run (px)", "MediaName")
+  row.names(len.sac.run)<-(recs)
+  
+  for (i in 1:length(recs)){
+    len.sac.run[i,1] <- mean(as.numeric(sac.run[(trimmed.data$ParticipantName == paste(recs[i])), 1]), na.rm=T)
+    a <- sac.run[(trimmed.data$ParticipantName == paste(recs[i])),2]
+    len.sac.run[i,2] <- paste(unique(a[!(is.na(a))]))
+  }
+  
+  #len.sac.run <- rbind(len.sac.run, colSums(len.sac.run))
+  #row.names(len.sac.run) <- c(paste(recs), "SUMMATION")
+  
+  return(len.sac.run)
+  
+}#end LenSacMedia()
+
+SumFixDurMedia <- function(trimmed.data , recs = sort(unique(sort(trimmed.data$ParticipantName)))) {
+  
+  if(missing(trimmed.data)) {stop("You need to enter a data frame")}
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
+  
+  sum.fix.dur.out<-as.data.frame(matrix(nrow=length(recs), ncol=2, NA))
+  names(sum.fix.dur.out)<- c("Sum of fixations", "MediaName")
+  row.names(sum.fix.dur.out)<-(recs)
+  
+  for (i in 1:length(sum.fix.dur.out[,1])){
+    sum.fix.dur.out[i,1]<-sum(trimmed.data$GazeEventDuration[
+      (trimmed.data$ParticipantName == paste(recs[i]))], na.rm=TRUE)
+    a <- trimmed.data$MediaName[(trimmed.data$ParticipantName == paste(recs[i]))]
+    sum.fix.dur.out[i,2] <- paste(unique(a[!(is.na(a))]))
+  }
+  
+  #sum.fix.dur.out <- rbind(sum.fix.dur.out, colSums(sum.fix.dur.out))
+  #row.names(sum.fix.dur.out) <- c(paste(recs), "SUMMATION")
+  
+  return(sum.fix.dur.out)
+  
+} # end SumFixDurMedia()
+
+## This function extracts the number of fixations
+NumFixDurMedia <- function(trimmed.data , recs = unique(trimmed.data$ParticipantName)){
+  
+  ## sort factor level
+  old.lvl <- levels(recs)
+  recs <- sort(factor(recs, levels=c(sort(old.lvl))))
+  
+  
+  if(missing(trimmed.data)) {stop("You need to enter a data frame")}
+  
+  num.fix.dur <- as.data.frame(matrix(nrow=length(recs), ncol=2, NA))
+  names(num.fix.dur) <- c("Number of fixations", "MediaName")
+  row.names(num.fix.dur) <- (recs)
+  
+  
+  for (i in 1:length(num.fix.dur[,1])){
+    num.fix.dur[i,1] <- max(trimmed.data$FixationIndex[
+      (trimmed.data$ParticipantName == paste(recs[i]))
+      ], na.rm=TRUE)
+    a <- trimmed.data$MediaName[(trimmed.data$ParticipantName == paste(recs[i]))]
+    num.fix.dur[i,2] <- paste(unique(a[!(is.na(a))]))
+  }
+  
+  #num.fix.dur <- rbind(num.fix.dur, colSums(num.fix.dur))
+  #row.names(num.fix.dur) <- c(paste(recs), "SUMMATION")
+  
+  return(num.fix.dur)
+  
+} # end NumFixDur()
 
