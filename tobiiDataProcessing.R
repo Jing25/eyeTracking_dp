@@ -27,8 +27,8 @@ level.list <- list(num.aois.0, num.aois.4, num.aois.5, num.aois.6, num.aois.7)
 names(level.list) <- c("None","S1","S2","S3","S4")
 
 ## write to .csv
-nameV <- c(names(num.aois.0), names(num.aois.4), names(num.aois.5), names(num.aois.6), names(num.aois.7))
-DelUselessAois(recs = nameV, fileroot = "./Jing_EyetrackingData/new/Perceptual_Masking_test_test1_", numCol)
+#nameV <- c(names(num.aois.0), names(num.aois.4), names(num.aois.5), names(num.aois.6), names(num.aois.7))
+#DelUselessAois(recs = nameV, fileroot = "./Jing_EyetrackingData/new/Perceptual_Masking_test_test1_", numCol)
 
 #TobiiTrim(recs = "mit0", fileroot = "./Jing_EyetrackingData/Perceptual_Masking_test_test1_", n.aoi = 16)
 ## list of all data
@@ -51,24 +51,24 @@ NumFixDur.list <- lapply(trimmed.data.noAoi.list, function(l) NumFixDur(l))
   #write.table(as.data.frame(NumFixDur.list), file = "mylist.csv", quote = F, sep = ",")
 NumFixDur.lvl <- data.frame(matrix(unlist(NumFixDur.list), ncol = length(NumFixDur.list)), stringsAsFactors = FALSE) 
   names(NumFixDur.lvl) <- names(NumFixDur.list)
-  row.names(NumFixDur.lvl) <- row.names(NumFixDur.list$level.0)
+  row.names(NumFixDur.lvl) <- row.names(NumFixDur.list$None)
 ## fixation duration
 SumFixDur.list <- lapply(trimmed.data.noAoi.list, function(l) SumFixDur(l))
 SumFixDur.lvl <- data.frame(matrix(unlist(SumFixDur.list), ncol = length(SumFixDur.list)), stringsAsFactors = FALSE) 
   names(SumFixDur.lvl) <- names(SumFixDur.list)
-  row.names(SumFixDur.lvl) <- row.names(SumFixDur.list$level.0)
+  row.names(SumFixDur.lvl) <- row.names(SumFixDur.list$None)
 ## Avg fixation duration
 AvgfixDur.lvl <- SumFixDur.lvl/NumFixDur.lvl
 ## Avg saccadic amplitude
 AvgSacAmp.list <- lapply(trimmed.data.noAoi.list, function(l) AvgSacAmp(l))
 AvgSacAmp.lvl <- data.frame(matrix(unlist(AvgSacAmp.list), ncol = length(AvgSacAmp.list)), stringsAsFactors = FALSE) 
   names(AvgSacAmp.lvl) <- names(AvgSacAmp.list)
-  row.names(AvgSacAmp.lvl) <- row.names(AvgSacAmp.list$level.0)
+  row.names(AvgSacAmp.lvl) <- row.names(AvgSacAmp.list$None)
 ## Avg saccadic length
 AvglenSac.list <- lapply(trimmed.data.noAoi.list, function(l) LenSac(l))
 AvglenSac.lvl <- data.frame(matrix(unlist(AvglenSac.list), ncol = length(AvglenSac.list)), stringsAsFactors = FALSE) 
   names(AvglenSac.lvl) <- names(AvglenSac.list)
-  row.names(AvglenSac.lvl) <- row.names(AvglenSac.list$level.0)
+  row.names(AvglenSac.lvl) <- row.names(AvglenSac.list$None)
   
 
 ## different images
@@ -145,7 +145,13 @@ AoiVisitTime.lvl.list <- lapply(seq_along(AoiVisitTime.list.group), function(l, 
   names(AoiVisitTime.lvl.list) <- names(AoiVisitTime.list.group)
   a <- AoiVisitTime.lvl.list$None
 
-  
+
+## AOI for S4
+AoiVisitTime.lvl.list$S4$Stimulus <- AoiVisitTime.lvl.list$S4$Difficulty
+AoiVisitTime.lvl.list$S4 <- AoiVisitTime.lvl.list$S4[(AoiVisitTime.lvl.list$S4$AOIName == "colorkey") == F,]
+write.csv(AoiVisitTime.lvl.list$S4[,1:4], file = "AoiData_S4.csv", row.names = FALSE, quote = FALSE)
+
+## AOI for all
 AoiVisitTime <- rbindlist(AoiVisitTime.lvl.list)
 AoiVisitTime$Stimulus <- AoiVisitTime$Difficulty
 AoiVisitTime <- AoiVisitTime[(AoiVisitTime$AOIName == "colorkey") == F,]
@@ -202,12 +208,6 @@ for(i in 1:length(AoiFixdur.lvl.list)) AoiFixdur.lvl.list[[i]]$Difficulty <-
 AoiFixdur <- rbindlist(AoiFixdur.lvl.list)
 AoiFixdur <- AoiFixdur[order(Participant)]
 
-
-a <- lapply(AoiData.list, function(l) a <- rbindlist(l))
-
-b <- sapply(a, function(x)  {
-  a <- paste(unique(x$Participant)) 
-  sort(a) })
 
 
 
