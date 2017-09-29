@@ -14,7 +14,7 @@ DelUselessAois <- function(recs, fileroot, nc) {
     else numAoi <- rbind(numAoi, c(recs[i], (ncol(dat) - nc)))
     
     #write.xlsx(dat, file = paste("./Jing_EyetrackingData/new2/Perceptual_Masking_test_test1_", recs[i],".xlsx"))
-    write.table(dat, file = paste("./Jing_EyetrackingData/", recs[i], ".csv", sep = ""), row.names = FALSE, quote = FALSE, sep = "\t")
+    write.table(dat, file = paste("./Jing_EyetrackingData/new2/", recs[i], ".csv", sep = ""), row.names = FALSE, quote = FALSE, sep = "\t")
   }
   
   #write.csv(numAoi, file = "./Jing_EyetrackingData/AoiNums.csv", row.names = FALSE)

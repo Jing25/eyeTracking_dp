@@ -1,6 +1,6 @@
 rm(list = ls())
-#setwd("/Users/jing/Desktop/Eyetracking/eyetracking_git/eyeTracking_dp")
-setwd("/Users/jingli/Desktop/Eyetracking/R/eyetracking_git")
+setwd("/Users/jing/Desktop/Eyetracking/eyetracking_git/eyeTracking_dp")
+#setwd("/Users/jingli/Desktop/Eyetracking/R/eyetracking_git")
 
 
 numCol <- 9;
@@ -35,14 +35,14 @@ names(level.list) <- c("None","S1","S2","S3","S4")
 
 trimmed.data.list <- lapply(level.list, function(l) { 
   dat <- lapply(seq_along(l), function(x, n, i) 
-  TobiiTrim(recs = n[i], fileroot = "./Jing_EyetrackingData/", n.aoi = x[i]), x = l, n = names(l))
+  TobiiTrim(recs = n[i], fileroot = "./Jing_EyetrackingData/new2/", n.aoi = x[i]), x = l, n = names(l))
   names(dat) <- names(l)
   return(dat)
 })
 
 ## data without aois list
 trimmed.data.noAoi.list <- lapply(level.list, function(l) 
-  TobiiTrim.noAOIs(recs = names(l), fileroot = "./Jing_EyetrackingData/"))
+  TobiiTrim.noAOIs(recs = names(l), fileroot = "./Jing_EyetrackingData/new2/"))
 
 
 ### different levels
@@ -207,6 +207,11 @@ for(i in 1:length(AoiFixdur.lvl.list)) AoiFixdur.lvl.list[[i]]$Difficulty <-
 #a <- AoiPercent.lvl.list$level.0
 AoiFixdur <- rbindlist(AoiFixdur.lvl.list)
 AoiFixdur <- AoiFixdur[order(Participant)]
+
+a <- AoiFixdur
+a$MediaName <- NULL
+write.csv(a, file = "AoiVisitData.csv", row.names = FALSE, quote = FALSE)
+
 
 
 

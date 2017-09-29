@@ -6,8 +6,6 @@ library(ggplot2)
 
 df <- read.csv("./studyResults_without_Sandra.csv", header=T)
 
-boxplot(leak~Difficulty, data = AoiFixdur)
-
 a <- AoiFixdur
 #a <- a[(a$leak == 0) == F,]
 a$leak <- log(a$leak +1)
@@ -19,7 +17,6 @@ leakm <- aggregate(a$leak, by=list(a$Difficulty), mean)
 leaknm <- aggregate(a$leakNodes, by=list(a$Difficulty), mean)
 onm <- aggregate(a$otherNodes, by=list(a$Difficulty), mean)
 
-plot(leakm$x, pch = "-", cex = 3, col = "red")
 
 g <- lm(leak~Difficulty, data = a)
 
@@ -29,19 +26,19 @@ plot(g, which = 2)
 library(MASS)
 boxcox(otherNodes ~ ., data = AoiFixdur)
 par(mfrow = c(3,2))
-boxplot(leak~Difficulty, data = a, names = c("None", "S1", "S2", "S3", "S4"), ylab = "Fixation Duration on Privacy Leaking Nodes", xlab = "Difficulty Levels", 
+boxplot(leak~Difficulty, data = a, names = c("None", "S1", "S2", "S3", "S4"), main = "Fixation Duration on PLNs", xlab = "Difficulty Levels", ylab = "Time (log(s))",
                cex.lab = 1.3, cex.axis = 1.3)
 points(leakm$x, pch = "-", cex = 3, col = "red")
 
 boxplot(leak~Difficulty, data = AoiFixdur, ylab = "Fixation Duration for Leaking Nodes", xlab = "Difficulty Levels")
 
-boxplot(leakNodes~Difficulty, data = a, names = Diffm, ylab = "Fixation Duration on Privacy Leaking Ontology Nodes", 
+boxplot(leakNodes~Difficulty, data = a, names = Diffm, main = "Fixation Duration on PLONs", ylab = "Time (log(s))",
         xlab = "Difficulty Levels", cex.lab = 1.3, cex.axis = 1.3)
 points(leaknm$x, pch = "-", cex = 3, col = "red")
 
 boxplot(leakNodes~Difficulty, data = AoiFixdur)
 
-boxplot(otherNodes~Difficulty, data = a, names = Diffm, ylab = "Fixation Duration on Other Ontology Nodes", xlab = "Difficulty Levels",
+boxplot(otherNodes~Difficulty, data = a, names = Diffm, main = "Fixation Duration on OONs", xlab = "Difficulty Levels", ylab = "Time (sqrt(s))",
         cex.lab = 1.3, cex.axis = 1.3)
 points(onm$x, pch = "-", cex = 3, col = "red")
 
@@ -64,18 +61,18 @@ plot(gl, which = 1)
 plot(gl, which = 2)
 
 par(mfrow = c(3,2))
-boxplot(Accuracy~Difficulty, data = df, names = Diffm, ylab = "Correctness", xlab = "Difficulty Levels",
+boxplot(Accuracy~Difficulty, data = df, names = Diffm, main = "Correctness", ylab = "Correctness", xlab = "Difficulty Levels",
         cex.lab = 1.3, cex.axis = 1.3)
 points(ba$x, pch = "-", cex = 3, col = "red")
 
 boxplot(Accuracy~Difficulty, data = b)
 boxplot(Time.in.page~Difficulty, data = df)
-boxplot(Time.in.page~Difficulty, data = b, names = Diffm, ylab = "Total Time Spent (s)", xlab = "Difficulty Levels",
+boxplot(Time.in.page~Difficulty, data = b, names = Diffm, main = "Total Time Spent", xlab = "Difficulty Levels", ylab = "Time (s)",
         cex.lab = 1.3, cex.axis = 1.3)
 points(bt$x, pch = "-", cex = 3, col = "red")
 
 boxplot(Last.click.time~Difficulty, data = df)
-boxplot(Last.click.time~Difficulty, data = b, names = Diffm, ylab = "Last Selection Time (s)", xlab = "Difficulty Levels",
+boxplot(Last.click.time~Difficulty, data = b, names = Diffm, main = "Last Selection Time", xlab = "Difficulty Levels", ylab = "Time (s)",
         cex.lab = 1.3, cex.axis = 1.3)
 points(bl$x, pch = "-", cex = 3, col = "red")
 
