@@ -85,20 +85,34 @@ plot(df$Name[which(df$Difficulty == 0)], df$Time.in.page[which(df$Difficulty == 
 
 
 ## plot AOI sequence
-AOI.plot.data <- AoiVisitTime[nrow(AoiVisitTime):1]#apply(AoiVisitTime,2,rev)#AoiVisitTime[rev(rownames(AoiVisitTime)),]
+difficulty <- c(0, 4, 5, 6, 7)
+names(difficulty) <- c("None","S1","S2","S3","S4")
+AOI.plot.data <- AoiVisitTime #AoiVisitTime[nrow(AoiVisitTime):1]#apply(AoiVisitTime,2,rev)#AoiVisitTime[rev(rownames(AoiVisitTime)),]
 AOI.plot.data$Date <- rep(as.POSIXct("2017-09-01"), nrow(AOI.plot.data))
 AOI.plot.data$EndDate <- rep(as.POSIXct("2017-09-01"), nrow(AOI.plot.data))
+AOI.plot.data$Correctness <- "NA"
+a <- AOI.plot.data$Correctness
 for(i in 2:nrow(AOI.plot.data)) {
   if(AOI.plot.data$Participant[i] != AOI.plot.data$Participant[i-1]) {
-    AOI.plot.data[i-1]$EndDate <- AOI.plot.data$Date[i-1] - AOI.plot.data$FixationDuration[i-1] 
+    AOI.plot.data[i-1]$EndDate <- AOI.plot.data$Date[i-1] + AOI.plot.data$FixationDuration[i-1] 
   }
   else {
-    AOI.plot.data$Date[i] <- AOI.plot.data$Date[i-1] - AOI.plot.data$FixationDuration[i-1]
-    AOI.plot.data[i-1]$EndDate <- AOI.plot.data$Date[i-1] - AOI.plot.data$FixationDuration[i-1]
+    AOI.plot.data$Date[i] <- AOI.plot.data$Date[i-1] + AOI.plot.data$FixationDuration[i-1]
+    AOI.plot.data[i-1]$EndDate <- AOI.plot.data$Date[i-1] + AOI.plot.data$FixationDuration[i-1]
   }
 }
+
+for(i in 1:nrow(AOI.plot.data)) {
+  #AOI.plot.data[i]$Correctness <- df$Accuracy[((paste(df$Name[i]) == AOI.plot.data$Participant[i]) & (df$Difficulty[i] == difficulty[AOI.plot.data$Difficulty[i]]))]
+  #a[i] <- df$Accuracy[(grepl(AOI.plot.data$Participant[i], paste(df$Name), fixed = TRUE) & (df$Difficulty == difficulty[AOI.plot.data$Difficulty[i]]))]
+  if(a[i] >= 1) AOI.plot.data$Correctness[i] <- "100%"
+  else if (a[i] <= 0) AOI.plot.data$Correctness[i] <- "0%"
+  else AOI.plot.data$Correctness[i] <- "1%-99%"
+}
+AOI.plot.data$Correctness <- a
+
 AOI.plot.data$EndDate[nrow(AOI.plot.data)] <- AOI.plot.data$Date[nrow(AOI.plot.data)]
-write.csv(AOI.plot.data, file = "AoiData_all_date3.csv", row.names = FALSE, quote = FALSE)
+write.csv(AOI.plot.data, file = "AoiData_all_date_correct.csv", row.names = FALSE, quote = FALSE)
 
 
 ## plot error bar
@@ -108,6 +122,13 @@ pi <- read.csv("./userInfo.csv", header=T)
 b <- rbindlist(trimmed.data.noAoi.list)
 fd <- AvgfixDur.lvl[-nrow(AvgfixDur.lvl),]
 sc <- AvglenSac.lvl[-nrow(AvglenSac.lvl),]
+fd_s <- apply(fd, 2, sd)
+sc_s <- apply(sc, 2, sd)
+df1 <- data.frame(mean = colMeans(fd), sd = fd_s)
+df2 <- data.frame(mean = colMeans(sc), sd = sc_s)
+error.crosses(df2, df1, sd=TRUE, main = "", xlab = "Average Saccade Length", ylab = "Average Fixation Duration", cex.lab = 1.3)
+
+
 fd$Gender <- "NA"
 for(i in 1:nrow(fd)) {
   fd$Gender[i] <- paste(pi[pi$First_Name == rownames(fd)[i],"Gender"])
@@ -116,15 +137,15 @@ for(i in 1:nrow(fd)) {
 fdd <- fd[1:5]
 fd_s <- apply(fdd, 1, sd)
 sc_s <- apply(sc, 1, sd)
-df1 <- data.frame(mean = rowMeans(fdd), sd = fd_s)
-df2 <- data.frame(mean = rowMeans(sc), sd = sc_s)
+df11 <- data.frame(mean = rowMeans(fdd), sd = fd_s)
+df22 <- data.frame(mean = rowMeans(sc), sd = sc_s)
 colors <- c("blue", "darkorange")
 names(colors) <- c("M", "F")
-error.crosses(df2, df1, sd=TRUE, main = "", xlab = "Average Saccade Length", ylab = "Average Fixation Duration", 
+error.crosses(df22, df11, sd=TRUE, main = "", xlab = "Average Saccade Length", ylab = "Average Fixation Duration", 
               colors = colors[fd$Gender], labels = "", cex.lab = 1.3)
 
 ## plot error bar for dataset
-ds <- c("dis", "sex", "mit", "inc", "job")
+ds <- c("DS5", "DS2", "DS3", "DS1", "DS4")
 
 aa <- cbind(AvglenSacMedia[AvglenSacMedia$MediaName == "dis"]$`length of saccadic run (px)`, 
        AvglenSacMedia[AvglenSacMedia$MediaName == "sex"]$`length of saccadic run (px)`,
@@ -141,9 +162,9 @@ bb <- cbind(AvgfixDurMedia[AvgfixDurMedia$media == "dis",][1],
             AvgfixDurMedia[AvgfixDurMedia$media == "job",][1])
 names(bb) <- ds
 
-df11 <- data.frame(mean = colMeans(aa), sd = apply(aa, 2, sd))
-df22 <- data.frame(mean = colMeans(bb), sd = apply(bb, 2, sd))
-error.crosses(df11, df22, sd=TRUE, main = "", xlab = "Average Saccade Length", 
+df111 <- data.frame(mean = colMeans(aa), sd = apply(aa, 2, sd))
+df222 <- data.frame(mean = colMeans(bb), sd = apply(bb, 2, sd))
+error.crosses(df111, df222, sd=TRUE, main = "", xlab = "Average Saccade Length", 
               ylab = "Average Fixation Duration", cex.lab = 1.3)
 
 
